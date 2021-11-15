@@ -6,10 +6,12 @@ namespace SharpEngine {
 	public class Triangle {
             
 		Vertex[] vertices;
+		Matrix transform = Matrix.Identity;
 		uint vertexArray;
 		uint vertexBuffer;
 
 		public float CurrentScale { get; private set; }
+		public Matrix Transform => transform;
 
 		public Material material;
             
@@ -53,31 +55,20 @@ namespace SharpEngine {
 			return (GetMinBounds() + GetMaxBounds()) / 2;
 		}
 
-		public void Scale(float multiplier) {
-			var offset = GetCenter();
-			Move(-offset);
-			
-			Matrix matrix = Matrix.Scale(new Vector(multiplier, multiplier));
-			for (var i = 0; i < this.vertices.Length; i++) {
-				this.vertices[i].position = matrix * this.vertices[i].position;
-			}
-			
-			Move(offset);
-			CurrentScale *= multiplier;
+		public void Scale(Vector multiplier)
+		{
+			this.transform *= Matrix.Scale(multiplier);
+			CurrentScale *= multiplier.x;
 		}
 
 		public void Move(Vector direction)
 		{
-			Matrix matrix = Matrix.Translation(direction);
-			
-			for (int i = 0; i < this.vertices.Length; i++)
-			{
-				this.vertices[i].position = matrix * this.vertices[i].position;
-			}
+			this.transform *= Matrix.Translation(direction);
 		}
 
 		public unsafe void Render() {
 			this.material.Use();
+			this.material.SetTransform(this.transform);
 			glBindVertexArray(vertexArray);
 			glBindBuffer(GL_ARRAY_BUFFER, this.vertexBuffer);
 			fixed (Vertex* vertex = &this.vertices[0]) {
