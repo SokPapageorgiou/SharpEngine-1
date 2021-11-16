@@ -45,29 +45,21 @@ namespace SharpEngine
                     }
                     if (window.GetKey(Keys.S))
                     {
-                        walkDirection += Vector.Backward;
+                        walkDirection += shape.Transform.Backward;
                     }
                     if (window.GetKey(Keys.A))
-                    {
-                        walkDirection += Vector.Left;
-                    }
-                    if (window.GetKey(Keys.D))
-                    {
-                        walkDirection += Vector.Right;
-                    }
-                    if (window.GetKey(Keys.Q))
                     {
                         var rotation = shape.Transform.Rotation;
                         rotation.z += MathF.PI * fixedDeltaTime;
                         shape.Transform.Rotation = rotation;
                     }
-                    if (window.GetKey(Keys.E))
+                    if (window.GetKey(Keys.D))
                     {
                         var rotation = shape.Transform.Rotation;
                         rotation.z -= MathF.PI * fixedDeltaTime;
                         shape.Transform.Rotation = rotation;
                     }
-
+                    
                     walkDirection = walkDirection.Normalize();
 
                     shape.Transform.Position += walkDirection * movementSpeed * fixedDeltaTime;
