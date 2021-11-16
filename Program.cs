@@ -41,19 +41,19 @@ namespace SharpEngine
                     
                     if (window.GetKey(Keys.W))
                     {
-                        walkDirection += new Vector(0f, 1);
+                        walkDirection += shape.Transform.Forward;
                     }
                     if (window.GetKey(Keys.S))
                     {
-                        walkDirection += new Vector(0f, -1);
+                        walkDirection += Vector.Backward;
                     }
                     if (window.GetKey(Keys.A))
                     {
-                        walkDirection += new Vector(-1, 0f);
+                        walkDirection += Vector.Left;
                     }
                     if (window.GetKey(Keys.D))
                     {
-                        walkDirection += new Vector(1, 0f);
+                        walkDirection += Vector.Right;
                     }
                     if (window.GetKey(Keys.Q))
                     {
