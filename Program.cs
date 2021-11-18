@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using GLFW;
 
 namespace SharpEngine
@@ -13,56 +14,33 @@ namespace SharpEngine
         }
         
         static void Main(string[] args) {
-            
+
+            var random = new Random();
             var window = new Window();
             var material = new Material("shaders/world-position-color.vert", "shaders/vertex-color.frag");
             var scene = new Scene();
+            var physics = new Physics(scene);
             window.Load(scene);
 
-            var shape = new Triangle(material);
-            shape.Transform.CurrentScale = new Vector(0.5f, 1.0f, 1.0f);
-            scene.Add(shape);
+            for (var i = 0; i < 30; i++) {
+                var circle = new Circle(material);
+                var radius = GetRandomFloat(random, 0.3f);
+                circle.Transform.CurrentScale = new Vector(radius, radius, 1f);
+                circle.Transform.Position = new Vector(GetRandomFloat(random, -1f), GetRandomFloat(random, -1), 0f);
+                circle.velocity = -circle.Transform.Position.Normalize() * GetRandomFloat(random, 0.15f, 0.3f);
+                circle.Mass = MathF.PI * radius * radius;
+                scene.Add(circle);
+            }
 
-            var ground = new Rectangle(material);
-            ground.Transform.CurrentScale = new Vector(10f, 1f, 1f);
-            ground.Transform.Position = new Vector(0f, -1f);
-            scene.Add(ground);
-
-            // engine rendering loop
-            const int fixedStepNumberPerSecond = 30;
+            const int fixedStepNumberPerSecond = 60;
             const float fixedDeltaTime = 1.0f / fixedStepNumberPerSecond;
-            const float movementSpeed = 0.5f;
-            double previousFixedStep = 0.0;
+            const int maxStepsPerFrame = 5;
+            var previousFixedStep = 0.0;
             while (window.IsOpen()) {
-                while (Glfw.Time > previousFixedStep + fixedDeltaTime) {
+                var stepCount = 0;
+                while (Glfw.Time > previousFixedStep + fixedDeltaTime && stepCount++ < maxStepsPerFrame) {
                     previousFixedStep += fixedDeltaTime;
-
-                    var walkDirection = new Vector(0, 0);
-                    
-                    if (window.GetKey(Keys.W))
-                    {
-                        walkDirection += shape.Transform.Forward;
-                    }
-                    if (window.GetKey(Keys.S))
-                    {
-                        walkDirection += shape.Transform.Backward;
-                    }
-                    if (window.GetKey(Keys.A))
-                    {
-                        var rotation = shape.Transform.Rotation;
-                        rotation.z += MathF.PI * fixedDeltaTime;
-                        shape.Transform.Rotation = rotation;
-                    }
-                    if (window.GetKey(Keys.D))
-                    {
-                        var rotation = shape.Transform.Rotation;
-                        rotation.z -= MathF.PI * fixedDeltaTime;
-                        shape.Transform.Rotation = rotation;
-                    }
-                    
-                    walkDirection = walkDirection.Normalize();
-
-                    shape.Transform.Position += walkDirection * movementSpeed * fixedDeltaTime;
+                    physics.Update(fixedDeltaTime);
                 }
                 window.Render();
             }

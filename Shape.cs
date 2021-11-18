@@ -10,12 +10,33 @@ namespace SharpEngine {
 
 		public Transform Transform { get; }
 		public Material material;
-            
+
+		float mass = 1;
+		float massInverse = 1;
+		public float Mass {
+			get => this.mass;
+			set {
+				this.mass = value;
+				this.massInverse = float.IsPositiveInfinity(value) ? 0f : 1f / value;
+			}
+		}
+		public float MassInverse => this.massInverse;
+		
+		public float gravityScale = 1f;
+		public Vector velocity; // momentum = product of velocity and mass
+		public Vector linearForce;
+		
 		public Shape(Vertex[] vertices, Material material) {
 			this.vertices = vertices;
 			this.material = material;
 			LoadTriangleIntoBuffer();
 			this.Transform = new Transform();
+		}
+
+		public void SetColor(Color color) {
+			for (int i = 0; i < this.vertices.Length; i++) {
+				vertices[i].color = color;
+			}
 		}
 		
 		 void LoadTriangleIntoBuffer() {
